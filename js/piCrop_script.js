@@ -42,37 +42,40 @@ const cll_cropper_movement_function = (newX, newY) =>{
     let crXend = Cropper_Wrapper_Dimension.left + Cropper_Wrapper.clientWidth;
     let crYend = Cropper_Wrapper_Dimension.top + Cropper_Wrapper.clientHeight;
     const rect = el.getBoundingClientRect();
+    leImg = Cropping_IMG.getBoundingClientRect();
 
     let RT = rect.top;
     let RL = rect.left;
     let ECW = el.clientWidth;
     let ECH = el.clientHeight;
     
+    el.style.left = `${RL - newX}px`;
+    el.style.top = `${RT - newY}px`;
+    
     if (RL < (crXstart)){
         el.style.left = `${crXstart}px`;
-        el.style.top = `${RT - newY}px`;
     }
     else if (RT < (crYstart)){
-        el.style.left = `${RL - newX}px`;
         el.style.top = `${crYstart}px`;
     }
     else if ((RL + ECW) > (crXend)){
         el.style.left = `${crXend - ECW}px`;
-        el.style.top = `${RT - newY}px`;
     }
     else if ((RT + ECH) > (crYend)){
-        el.style.left = `${RL - newX}px`;
         el.style.top = `${crYend - ECH}px`;
     }
-    else if ((RL >= 0) && (RL <= (crXend - ECW))){
-        el.style.left = `${RL - newX}px`;
-        el.style.top = `${RT - newY}px`;
+    else if(RL < (leImg.left)){
+        el.style.left = `${leImg.left}px`;
     }
-    else if ((RT >= 0) && (RT <= (crYend - ECH))){
-        el.style.left = `${RL - newX}px`;
-        el.style.top = `${RT - newY}px`;
+    else if(RT < (leImg.top)){
+        el.style.top = `${leImg.top}px`;
     }
-
+    else if((RL + ECW) > (leImg.left + Cropping_IMG.clientWidth)){
+        el.style.left = `${leImg.left + Cropping_IMG.clientWidth - el.clientWidth}px`;
+    }
+    else if((RT + ECH) > (leImg.top + Cropping_IMG.clientHeight)-5){
+        el.style.top = `${leImg.top + Cropping_IMG.clientHeight - el.clientHeight-5}px`;
+    }
 }
 
 // TOUCH FOUNCTION FOR CROPPER CONTAINER
@@ -313,8 +316,8 @@ const PostionImage = (newX, newY)=>{
     else if (leImg.top>cropperRect.top){
         Cropping_IMG.style.top = `${cropperRect.top - Cropper_Wrapper_Dimension.top}px`;
     }
-    else if (imgBottm<cropperBottm){
-        Cropping_IMG.style.top = `${imgMinBottom}px`;
+    else if (imgBottm<cropperBottm+5){
+        Cropping_IMG.style.top = `${imgMinBottom+5}px`;
     }
     else if (imgRight<cropperRight){
         Cropping_IMG.style.left = `${imgMinRight}px`;

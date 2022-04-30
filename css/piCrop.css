@@ -31,8 +31,7 @@ body{
 }
 .Cropping_IMG{
     position: absolute;
-    min-width: 200px;
-    min-height: 200px;
+    min-width: 100px;
     top: 0;
     left: 0;
     -webkit-tap-highlight-color: rgba(0,0,0,0);
@@ -46,6 +45,7 @@ body{
 }
 .Cropping_IMG img{
     position: relative;
+    object-fit: fill;
     width: 100%;
     z-index: -1;
 }
@@ -58,7 +58,7 @@ body{
     position: absolute;
     cursor: move;
     outline-style: solid;
-    outline-color: #00000067;
+    outline-color: #0000009f;
     outline-width: 100vw;
 }
 @media only screen and (max-width: 850px){
