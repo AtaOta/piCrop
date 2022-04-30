@@ -52,8 +52,8 @@ body{
 
 /* `````````````````````````````````````````````````````````````````````````````````` */
 .item{
-    height: 200px;
-    width: 200px;
+    height: 100px;
+    width: 100px;
     background-color: transparent;
     position: absolute;
     cursor: move;
@@ -99,7 +99,7 @@ body{
     cursor: se-resize;
 }
 
-/* .reColor{
+.reColor{
     outline-style: solid;
     background-color: #00eeff7e;
     outline-color: #00d8d8;
@@ -124,4 +124,4 @@ body{
     top: calc(50% - 5px);;
     left: -5px;
     cursor: w-resize;
-} */
+}

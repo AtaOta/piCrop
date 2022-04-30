@@ -1,17 +1,37 @@
 const Cropper_Wrapper = document.querySelector(".Cropper_Wrapper")
-let Cropping_IMG = document.querySelector('.Cropping_IMG')
 let  Cropper_Wrapper_Dimension= Cropper_Wrapper.getBoundingClientRect();
 let crXbigining = Cropper_Wrapper_Dimension.left;
 let crYbigining = Cropper_Wrapper_Dimension.top;
-
-console.warn(Cropping_IMG.clientHeight)
-console.warn(Cropping_IMG.clientWidth)
 
 const el = document.querySelector('.item');
 el.style.left = `${((Cropper_Wrapper.clientWidth - el.clientWidth) /2) + crXbigining}px`;
 el.style.top = `${((Cropper_Wrapper.clientHeight - el.clientHeight) /2) + crYbigining}px`;
 
+let Cropping_IMG = document.querySelector('.Cropping_IMG')
+Cropping_IMG.style.width = `${Cropper_Wrapper.clientWidth}px`;
+Cropping_IMG.style.top = `${(Cropper_Wrapper.clientHeight - Cropping_IMG.clientHeight)/2}px`;
+let leImg = Cropping_IMG.getBoundingClientRect();
+
 let isResizing = false;
+
+
+// ``````````````````````````````````WINDOW SIZE DETECTION````````````````````````````````````````
+window.addEventListener('resize', ()=>{
+    const rect = el.getBoundingClientRect();
+    el.style.width = `${100}px`;
+    el.style.height = `${100}px`;
+
+    Cropper_Wrapper_Dimension= Cropper_Wrapper.getBoundingClientRect();
+    let crXstart = Cropper_Wrapper_Dimension.left;
+    let crYstart = Cropper_Wrapper_Dimension.top;
+    el.style.left = `${((Cropper_Wrapper.clientWidth - el.clientWidth) /2) + crXstart}px`;
+    el.style.top = `${((Cropper_Wrapper.clientHeight - el.clientHeight) /2) + crYstart}px`;
+
+    Cropping_IMG.style.width = `${Cropper_Wrapper.clientWidth}px`;
+    Cropping_IMG.style.top = `${(Cropper_Wrapper.clientHeight - Cropping_IMG.clientHeight)/2}px`;
+    leImg = Cropping_IMG.getBoundingClientRect();
+})
+// ``````````````````````````````END WINDOW RESIZE DETECTION```````````````````````````````````````
 
 // `````````````````````````````CROPPER CONTAINER MOVEMENT CONTROLLER```````````````````````````````
 const cll_cropper_movement_function = (newX, newY) =>{
@@ -111,20 +131,6 @@ function mousedown(e){
     }
 }
 // ```````````````````````````END TOUCH FUNCTION FOR CROPPER CONTAINER````````````````````````````
-
-// ``````````````````````````````````WINDOW SIZE DETECTION````````````````````````````````````````
-window.addEventListener('resize', ()=>{
-    const rect = el.getBoundingClientRect();
-    el.style.width = `${100}px`;
-    el.style.height = `${100}px`;
-
-    let  Cropper_Wrapper_Dimension= Cropper_Wrapper.getBoundingClientRect();
-    let crXstart = Cropper_Wrapper_Dimension.left;
-    let crYstart = Cropper_Wrapper_Dimension.top;
-    el.style.left = `${((Cropper_Wrapper.clientWidth - el.clientWidth) /2) + crXstart}px`;
-    el.style.top = `${((Cropper_Wrapper.clientHeight - el.clientHeight) /2) + crYstart}px`;
-})
-// ``````````````````````````````END WINDOW RESIZE DETECTION```````````````````````````````````````
 
 // `````````````````````````````````RESIZER ACTION CONTAINER```````````````````````````````````````
 const resizers = document.querySelectorAll(".resizer");
@@ -278,3 +284,86 @@ for (let resizer of resizers){
     }
 }
 // ``````````````````````````````END CROPPER RESIZE ACTION CONTAINER`````````````````````````````````
+
+
+// POSITIONING IMAGE LOGICAL CUNCTION
+const PostionImage = (newX, newY)=>{
+    let leImg = Cropping_IMG.getBoundingClientRect();
+    let cropperRect = el.getBoundingClientRect();
+    // let leWrapper = Cropper_Wrapper_Dimension;
+
+    let CrClnHight = el.clientHeight;
+    let CrClnWidth = el.clientWidth;
+    let CrImgClnHight = Cropping_IMG.clientHeight;
+    let CrImgClnWidth = Cropping_IMG.clientWidth;
+
+    let imgMinBottom = ((cropperRect.top + CrClnHight) - (CrImgClnHight + Cropper_Wrapper_Dimension.top));
+    let imgBottm = (leImg.top + CrImgClnHight)
+    let cropperBottm = cropperRect.top + CrClnHight
+
+    let imgMinRight = ((cropperRect.left + CrClnWidth) - (CrImgClnWidth + Cropper_Wrapper_Dimension.left));
+    let imgRight = (leImg.left + CrImgClnWidth)
+    let cropperRight = cropperRect.left + CrClnWidth
+
+    Cropping_IMG.style.left = `${leImg.left - newX - Cropper_Wrapper_Dimension.left}px`;
+    Cropping_IMG.style.top = `${leImg.top - newY - Cropper_Wrapper_Dimension.top}px`;
+    if (leImg.left>cropperRect.left){
+        Cropping_IMG.style.left = `${cropperRect.left - Cropper_Wrapper_Dimension.left}px`;
+    }
+    else if (leImg.top>cropperRect.top){
+        Cropping_IMG.style.top = `${cropperRect.top - Cropper_Wrapper_Dimension.top}px`;
+    }
+    else if (imgBottm<cropperBottm){
+        Cropping_IMG.style.top = `${imgMinBottom}px`;
+    }
+    else if (imgRight<cropperRight){
+        Cropping_IMG.style.left = `${imgMinRight}px`;
+    }
+}
+// IMAGE POSITIONING START ON MOUSE DOWN:
+Cropping_IMG.addEventListener('mousedown', IMGmousedown);
+
+function IMGmousedown(e){
+    let prevX = e.clientX;
+    let prevY = e.clientY;
+
+    window.addEventListener("mousemove", mousemove);
+    window.addEventListener("mouseup", mouseup);
+
+    function mousemove(e){
+        let newX = prevX - e.clientX;
+        let newY = prevY - e.clientY;
+        PostionImage(newX, newY);
+        prevX = e.clientX;
+        prevY = e.clientY;
+    }
+
+    function mouseup(){
+        window.removeEventListener("mousemove", mousemove);
+        window.removeEventListener("mouseup", mouseup);
+    }
+}
+// IMAGE POSITIONING START ON > TOUCH START:
+Cropping_IMG.addEventListener('touchstart', IMGtouchstart);
+function IMGtouchstart(e){
+    let touch = e.touches[0];
+    let prevX = touch.clientX;
+    let prevY = touch.clientY;
+
+    window.addEventListener('touchmove', touchmove);
+    window.addEventListener('touchend', touchend);
+
+    function touchmove(e){
+        let touch = e.touches[0];
+        let newX = prevX - touch.clientX;
+        let newY = prevY - touch.clientY;
+        PostionImage(newX, newY);
+        prevX = touch.clientX;
+        prevY = touch.clientY;
+    }
+
+    function touchend(){
+        window.removeEventListener('touchmove', touchmove);
+        window.removeEventListener('touchend', touchend);
+    }
+}
