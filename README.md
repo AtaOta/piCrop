@@ -1,8 +1,8 @@
-# DON'T USE IT, it is in devlopment stage right now.
+# DON'T USE IT, it is Under Development Stage right now.
 
 ## This Project Build Only Using [html, css & js]
 
-## MISSING [Success]:
+## CREATED [Success]:
 ### 1] Position center [Yes]
 ### 2] On page resize cropper-properties are responsiv [Yes]
 ### 3] Cropper-container moveble [Yes] (tuch-move, mouse-move)
