@@ -1,7 +1,7 @@
 const Cropper_Wrapper = document.querySelector(".Cropper_Wrapper")
-let  Cropper_Wrapper_Dimension= Cropper_Wrapper.getBoundingClientRect();
-let crXbigining = Cropper_Wrapper_Dimension.left;
-let crYbigining = Cropper_Wrapper_Dimension.top;
+let  Cropper_Wrapper_Rect= Cropper_Wrapper.getBoundingClientRect();
+let crXbigining = Cropper_Wrapper_Rect.left;
+let crYbigining = Cropper_Wrapper_Rect.top;
 
 const el = document.querySelector('.item');
 el.style.left = `${((Cropper_Wrapper.clientWidth - el.clientWidth) /2) + crXbigining}px`;
@@ -9,34 +9,38 @@ el.style.top = `${((Cropper_Wrapper.clientHeight - el.clientHeight) /2) + crYbig
 let rect = el.getBoundingClientRect();
 
 let Cropping_IMG = document.querySelector('.Cropping_IMG');
-Cropping_IMG.style.width = `${Cropper_Wrapper.clientWidth}px`;
-Cropping_IMG.style.top = `${(Cropper_Wrapper.clientHeight - Cropping_IMG.clientHeight)/2}px`;
 let leImg = Cropping_IMG.getBoundingClientRect();
-
-
+Cropping_IMG.style.width = `${Cropper_Wrapper_Rect.width}px`;
+Cropping_IMG.style.top = `${(Cropper_Wrapper_Rect.height - leImg.height)/2}px`;
 let InputImg = document.getElementsByClassName('inputImg')[0]
-let DrawFormLeft = (rect.left - leImg.left)
-let DrawFormTop = (rect.top - leImg.top)
 
 let GetCanvas = document.getElementById('canvas');
 GetCanvas.width = `${el.clientWidth}`;
 GetCanvas.height = `${el.clientHeight}`;
 
 let isResizing = false;
+let scale = 1;
+let scaleDireaction = 0;
 
 // ``````````````````````````````````````````````````````````````````````````````````````````````
 
-const DrawingImage = (DrawFormLeft, DrawFormTop) =>{
+const DrawingImage = () =>{
     // DRAWING AN IMAGE INSIDE THE CANVAS
+    leImg = Cropping_IMG.getBoundingClientRect();
+    rect = el.getBoundingClientRect();
     InputImg = document.getElementsByClassName('inputImg')[0]
+
+    let DrawFormLeft = (rect.left - leImg.left)
+    let DrawFormTop = (rect.top - leImg.top)
+
     const naW = InputImg.naturalWidth;
     const naH = InputImg.naturalHeight;
     
-    let formLeft = DrawFormLeft*(naW/Cropping_IMG.clientWidth);
-    let fromTop = DrawFormTop*(naH/Cropping_IMG.clientHeight);
+    let formLeft = DrawFormLeft*(naW/leImg.width);
+    let fromTop = DrawFormTop*(naH/leImg.height);
 
-    let imagePreDrawWidth = el.clientWidth*(naW/Cropping_IMG.clientWidth);
-    let imagePreDrawHeight = el.clientHeight*(naW/Cropping_IMG.clientWidth);
+    let imagePreDrawWidth = (rect.width)*(naW/leImg.width);
+    let imagePreDrawHeight = (rect.height)*(naW/leImg.width);
 
     const image = new Image(),
     canvas = GetCanvas,
@@ -51,7 +55,39 @@ const DrawingImage = (DrawFormLeft, DrawFormTop) =>{
             el.clientWidth, el.clientHeight); // With as width / height: 100 * 100 (scale)
     });
 }
-DrawingImage(DrawFormLeft, DrawFormTop)
+DrawingImage();
+
+
+// `````````````````````````ZOOM THE IMAGE`````````````````````````````````
+function zoom(event) {
+    event.preventDefault();
+    Cropper_Wrapper_Rect= Cropper_Wrapper.getBoundingClientRect();
+    Cropping_IMG = document.querySelector('.Cropping_IMG');
+    leImg = Cropping_IMG.getBoundingClientRect();
+
+    scale += event.deltaY * -0.001;
+    scaleDireaction = event.deltaY * -0.01;
+
+    // Restrict scale
+    scale = Math.min(Math.max(1, scale.toFixed(1)), 1.5);
+
+    // Apply scale transform
+    if(scale<=1){
+        Cropping_IMG.style.width = `${Cropper_Wrapper_Rect.width}px`;
+        return
+    }
+    if((scale>1) && (scaleDireaction<0)){
+        Cropping_IMG.style.width = `${leImg.width / (scale+0.1)}px`;
+        return
+    }
+    if((scaleDireaction>0) && (scale<1.5) && (scale>1)){
+        Cropping_IMG.style.width = `${leImg.width * scale}px`;
+        return
+    }
+    DrawingImage();
+}
+Cropping_IMG.onwheel = zoom;
+// `````````````````````````END ZOOM THE IMAGE`````````````````````````````````
 
 // ``````````````````````````````````WINDOW SIZE DETECTION````````````````````````````````````````
 window.addEventListener('resize', ()=>{
@@ -59,41 +95,44 @@ window.addEventListener('resize', ()=>{
     el.style.width = `${100}px`;
     el.style.height = `${100}px`;
 
-    Cropper_Wrapper_Dimension= Cropper_Wrapper.getBoundingClientRect();
-    let crXstart = Cropper_Wrapper_Dimension.left;
-    let crYstart = Cropper_Wrapper_Dimension.top;
+    Cropper_Wrapper_Rect= Cropper_Wrapper.getBoundingClientRect();
+    let crXstart = Cropper_Wrapper_Rect.left;
+    let crYstart = Cropper_Wrapper_Rect.top;
     el.style.left = `${((Cropper_Wrapper.clientWidth - el.clientWidth) /2) + crXstart}px`;
     el.style.top = `${((Cropper_Wrapper.clientHeight - el.clientHeight) /2) + crYstart}px`;
 
     Cropping_IMG.style.width = `${Cropper_Wrapper.clientWidth}px`;
     Cropping_IMG.style.top = `${(Cropper_Wrapper.clientHeight - Cropping_IMG.clientHeight)/2}px`;
     leImg = Cropping_IMG.getBoundingClientRect();
+    GetCanvas.width = `${el.clientWidth}`;
+    GetCanvas.height = `${el.clientHeight}`;
+    scale = 1;
+    scaleDireaction = 0;
+    DrawingImage();
 })
 // ``````````````````````````````END WINDOW RESIZE DETECTION```````````````````````````````````````
 
 // `````````````````````````````CROPPER CONTAINER MOVEMENT CONTROLLER```````````````````````````````
 const cll_cropper_movement_function = (newX, newY) =>{
-    
-    let  Cropper_Wrapper_Dimension= Cropper_Wrapper.getBoundingClientRect();
-    let crXstart = Cropper_Wrapper_Dimension.left;
-    let crYstart = Cropper_Wrapper_Dimension.top;
-    let crXend = Cropper_Wrapper_Dimension.left + Cropper_Wrapper.clientWidth;
-    let crYend = Cropper_Wrapper_Dimension.top + Cropper_Wrapper.clientHeight;
+    Cropper_Wrapper_Rect= Cropper_Wrapper.getBoundingClientRect();
     rect = el.getBoundingClientRect();
     leImg = Cropping_IMG.getBoundingClientRect();
 
+    let crXstart = Cropper_Wrapper_Rect.left;
+    let crYstart = Cropper_Wrapper_Rect.top;
+    let crXend = Cropper_Wrapper_Rect.left + Cropper_Wrapper_Rect.width;
+    let crYend = Cropper_Wrapper_Rect.top + Cropper_Wrapper_Rect.height;
+
     let RT = rect.top;
     let RL = rect.left;
-    let ECW = el.clientWidth;
-    let ECH = el.clientHeight;
+    let ECW = rect.width;
+    let ECH = rect.height;
     
     el.style.left = `${RL - newX}px`;
     el.style.top = `${RT - newY}px`;
 
     // CALL FUNCTION FOR DRAWING IMAGE
-    DrawFormLeft = (rect.left - leImg.left)
-    DrawFormTop = (rect.top - leImg.top)
-    DrawingImage(DrawFormLeft, DrawFormTop)
+    DrawingImage()
     
     if (RL < (crXstart)){
         el.style.left = `${crXstart}px`;
@@ -119,12 +158,12 @@ const cll_cropper_movement_function = (newX, newY) =>{
         el.style.top = `${leImg.top}px`;
         return
     }
-    else if((RL + ECW) > (leImg.left + Cropping_IMG.clientWidth)){
-        el.style.left = `${leImg.left + Cropping_IMG.clientWidth - el.clientWidth}px`;
+    else if((RL + ECW) > (leImg.left + leImg.width)){
+        el.style.left = `${leImg.left + leImg.width - ECW}px`;
         return
     }
-    else if((RT + ECH) > (leImg.top + Cropping_IMG.clientHeight)-5){
-        el.style.top = `${leImg.top + Cropping_IMG.clientHeight - el.clientHeight-5}px`;
+    else if((RT + ECH) > (leImg.top + leImg.height)-5){
+        el.style.top = `${leImg.top + leImg.height - ECH -5}px`;
         return
     }
     
@@ -193,15 +232,14 @@ let currentResizer;
 
 const cll_resizer_function = (currentResizer, touch, rect, prevX, prevY, crXstart, crYstart, crXend, crYend)=>{
     leImg = Cropping_IMG.getBoundingClientRect();
-    let leImgWidht = Cropping_IMG.clientWidth;
-    let leImgHeight = Cropping_IMG.clientHeight;
-    GetCanvas.width = `${el.clientWidth}`;
-    GetCanvas.height = `${el.clientHeight}`;
+    rect = el.getBoundingClientRect();
+    let leImgWidht = leImg.width;
+    let leImgHeight = leImg.height;
+    GetCanvas.width = `${rect.width}`;
+    GetCanvas.height = `${rect.height}`;
     
     // CALL FUNCTION FOR DRAWING IMAGE
-    DrawFormLeft = (rect.left - leImg.left)
-    DrawFormTop = (rect.top - leImg.top)
-    DrawingImage(DrawFormLeft, DrawFormTop)
+    DrawingImage()
     
     if (currentResizer.classList.contains("se") 
     && (touch.clientX <= crXend) 
@@ -375,43 +413,48 @@ for (let resizer of resizers){
 // ``````````````````````````````END CROPPER RESIZE ACTION CONTAINER`````````````````````````````````
 
 
-// POSITIONING IMAGE LOGICAL CUNCTION
+// ```````````````````````````````POSITIONING IMAGE LOGICAL CUNCTION`````````````````````````````````
 const PostionImage = (newX, newY)=>{
+    Cropper_Wrapper_Rect= Cropper_Wrapper.getBoundingClientRect();
     let leImg = Cropping_IMG.getBoundingClientRect();
     let cropperRect = el.getBoundingClientRect();
     // let leWrapper = Cropper_Wrapper_Dimension;
 
-    let CrClnHight = el.clientHeight;
-    let CrClnWidth = el.clientWidth;
-    let CrImgClnHight = Cropping_IMG.clientHeight;
-    let CrImgClnWidth = Cropping_IMG.clientWidth;
+    let CH = cropperRect.height;
+    let CW = cropperRect.width;
+    let CT = cropperRect.top;
+    let CL = cropperRect.left;
+    let CIH = leImg.height;
+    let CIW = leImg.width;
+    let CIT = leImg.top;
+    let CIL = leImg.left;
+    let CWRT = Cropper_Wrapper_Rect.top;
+    let CWRL = Cropper_Wrapper_Rect.left;
 
-    let imgMinBottom = ((cropperRect.top + CrClnHight) - (CrImgClnHight + Cropper_Wrapper_Dimension.top));
-    let imgBottm = (leImg.top + CrImgClnHight)
-    let cropperBottm = cropperRect.top + CrClnHight
+    let imgMinBottom = ((CT + CH) - (CIH + CWRT));
+    let imgBottm = (CIT + CIH)
+    let cropperBottm = CT + CH
 
-    let imgMinRight = ((cropperRect.left + CrClnWidth) - (CrImgClnWidth + Cropper_Wrapper_Dimension.left));
-    let imgRight = (leImg.left + CrImgClnWidth)
-    let cropperRight = cropperRect.left + CrClnWidth
+    let imgMinRight = ((CL + CW) - (CIW + CWRL));
+    let imgRight = (CIL + CIW)
+    let cropperRight = CL + CW
 
-    Cropping_IMG.style.left = `${leImg.left - newX - Cropper_Wrapper_Dimension.left}px`;
-    Cropping_IMG.style.top = `${leImg.top - newY - Cropper_Wrapper_Dimension.top}px`;
+    Cropping_IMG.style.left = `${CIL - newX - CWRL}px`;
+    Cropping_IMG.style.top = `${CIT - newY - CWRT}px`;
 
     // CALL FUNCTION FOR DRAWING IMAGE
-    DrawFormLeft = (rect.left - leImg.left)
-    DrawFormTop = (rect.top - leImg.top)
-    DrawingImage(DrawFormLeft, DrawFormTop)
+    DrawingImage()
     
-    if (leImg.left > cropperRect.left){
-        Cropping_IMG.style.left = `${cropperRect.left - Cropper_Wrapper_Dimension.left}px`;
+    if (CIL > CL){
+        Cropping_IMG.style.left = `${CL - CWRL}px`;
         return
     }
-    else if (leImg.top > cropperRect.top){
-        Cropping_IMG.style.top = `${cropperRect.top - Cropper_Wrapper_Dimension.top}px`;
+    else if (CIT > CT){
+        Cropping_IMG.style.top = `${CT - CWRT}px`;
         return
     }
-    else if (imgBottm < cropperBottm){
-        Cropping_IMG.style.top = `${imgMinBottom}px`;
+    else if (imgBottm < cropperBottm +5){
+        Cropping_IMG.style.top = `${imgMinBottom +5}px`;
         return
     }
     else if (imgRight < cropperRight){
@@ -470,3 +513,5 @@ function IMGtouchstart(e){
         window.removeEventListener('touchend', touchend);
     }
 }
+
+

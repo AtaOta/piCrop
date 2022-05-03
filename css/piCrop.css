@@ -28,7 +28,6 @@ body{
     position: relative;
     box-shadow: 0 0 3px black;
     overflow: hidden;
-    /* overflow: auto; */
 }
 .Cropping_IMG{
     position: absolute;
@@ -43,6 +42,7 @@ body{
     background-color: transparent;
     width: auto;
     height: auto;
+    /* background-color: aliceblue; */
 }
 .Cropping_IMG img{
     position: relative;
