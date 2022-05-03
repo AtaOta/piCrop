@@ -1,5 +1,13 @@
 # DON'T USE IT, it is Under Development Stage right now.
 
+
+<h3 align="center">
+  🔆piCropper🔆
+</h3>
+<h3 align="center">
+<img src=https://github.com/AtaOta/piCrop/blob/master/Algorithm/Group%2040.png' alt='emoji' width="50%" height="50%">
+</h3>
+
 ## This Project Build Only Using [html, css & js]
 
 ## CREATED [Success]:
