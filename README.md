@@ -5,7 +5,7 @@
   🔆piCropper🔆
 </h3>
 <h3 align="center">
-<img src=https://github.com/AtaOta/piCrop/blob/master/Algorithm/Group%2040.png' alt='emoji' width="50%" height="50%">
+<img src="./Algorithm/Group 40.png" alt='emoji' width="50%" height="50%">
 </h3>
 
 ## This Project Build Only Using [html, css & js]
