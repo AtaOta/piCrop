@@ -5,7 +5,7 @@
   🔆piCropper🔆
 </h3>
 <h3 align="center">
-<img src="./Algorithm/Group 40.png" alt='emoji' width="50%" height="50%">
+<img src="./Algorithm/Group 40.png" alt='emoji' width="100%" height="100%">
 </h3>
 
 ## This Project Build Only Using [html, css & js]
