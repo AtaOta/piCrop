@@ -12,7 +12,10 @@ let Cropping_IMG = document.querySelector('.Cropping_IMG');
 let leImg = Cropping_IMG.getBoundingClientRect();
 Cropping_IMG.style.width = `${Cropper_Wrapper_Rect.width}px`;
 Cropping_IMG.style.top = `${(Cropper_Wrapper_Rect.height - leImg.height)/2}px`;
-let InputImg = document.getElementsByClassName('inputImg')[0]
+
+const InputImg = document.getElementsByClassName('inputImg')[0]
+const naW = InputImg.naturalWidth;
+const naH = InputImg.naturalHeight;
 
 let GetCanvas = document.getElementById('canvas');
 GetCanvas.width = `${el.clientWidth}`;
@@ -28,13 +31,9 @@ const DrawingImage = () =>{
     // DRAWING AN IMAGE INSIDE THE CANVAS
     leImg = Cropping_IMG.getBoundingClientRect();
     rect = el.getBoundingClientRect();
-    InputImg = document.getElementsByClassName('inputImg')[0]
 
     let DrawFormLeft = (rect.left - leImg.left)
     let DrawFormTop = (rect.top - leImg.top)
-
-    const naW = InputImg.naturalWidth;
-    const naH = InputImg.naturalHeight;
     
     let formLeft = DrawFormLeft*(naW/leImg.width);
     let fromTop = DrawFormTop*(naH/leImg.height);
@@ -72,18 +71,19 @@ function zoom(event) {
     scale = Math.min(Math.max(1, scale.toFixed(1)), 1.5);
 
     // Apply scale transform
-    if(scale<=1){
+    if(scale==1){
         Cropping_IMG.style.width = `${Cropper_Wrapper_Rect.width}px`;
-        return
+        Cropping_IMG.style.transition = `all 0.5s ease`;
     }
-    if((scale>1) && (scaleDireaction<0)){
-        Cropping_IMG.style.width = `${leImg.width / (scale+0.1)}px`;
-        return
+    else if(!(scale<=1) && (scale<=1.5) && (scaleDireaction<0)){
+        Cropping_IMG.style.width = `${leImg.width  - ((naW/2) / (scale+0.1))}px`;
+        Cropping_IMG.style.transition = `all 0.5s ease`;
     }
-    if((scaleDireaction>0) && (scale<1.5) && (scale>1)){
-        Cropping_IMG.style.width = `${leImg.width * scale}px`;
-        return
+    else if(!(scale<=1) && (scale<1.5) && (scaleDireaction>0)){
+        Cropping_IMG.style.width = `${leImg.width + (naW/2 * scale)}px`;
+        Cropping_IMG.style.transition = `all 0.5s ease`;
     }
+    
     DrawingImage();
 }
 Cropping_IMG.onwheel = zoom;
@@ -91,7 +91,6 @@ Cropping_IMG.onwheel = zoom;
 
 // ``````````````````````````````````WINDOW SIZE DETECTION````````````````````````````````````````
 window.addEventListener('resize', ()=>{
-    const rect = el.getBoundingClientRect();
     el.style.width = `${100}px`;
     el.style.height = `${100}px`;
 
@@ -418,6 +417,7 @@ const PostionImage = (newX, newY)=>{
     Cropper_Wrapper_Rect= Cropper_Wrapper.getBoundingClientRect();
     let leImg = Cropping_IMG.getBoundingClientRect();
     let cropperRect = el.getBoundingClientRect();
+    Cropping_IMG.style.transition = `none`;
     // let leWrapper = Cropper_Wrapper_Dimension;
 
     let CH = cropperRect.height;

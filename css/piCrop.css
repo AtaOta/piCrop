@@ -42,7 +42,11 @@ body{
     background-color: transparent;
     width: auto;
     height: auto;
+    outline-style: solid;
+    outline-color: #5c5c5c;
+    outline-width: 100vw;
     /* background-color: aliceblue; */
+    /* z-index: 1; */
 }
 .Cropping_IMG img{
     position: relative;
@@ -61,6 +65,7 @@ body{
     outline-style: solid;
     outline-color: #0000009f;
     outline-width: 100vw;
+    /* z-index: 2; */
 }
 @media only screen and (max-width: 850px){
     .item{
@@ -76,7 +81,7 @@ body{
     background-color: #1eff007e;
     outline-color: #00a336;
     outline-width: 1px;
-    z-index: 2;
+    z-index: 5;
 }
 
 .nw {
