@@ -58,11 +58,43 @@ DrawingImage();
 
 
 // `````````````````````````ZOOM THE IMAGE`````````````````````````````````
+const exactPositonImgOnZoom = () => {
+    rect = el.getBoundingClientRect();
+    leImg = Cropping_IMG.getBoundingClientRect();
+    Cropping_IMG = document.querySelector('.Cropping_IMG');
+
+    let CH = rect.height;
+    let CW = rect.width;
+    let CT = rect.top;
+    let CL = rect.left;
+    let CIH = leImg.height;
+    let CIW = leImg.width;
+    let CIT = leImg.top;
+    let CIL = leImg.left;
+    let CWRT = Cropper_Wrapper_Rect.top;
+    let CWRL = Cropper_Wrapper_Rect.left;
+
+    let imgMinBottom = ((CT + CH) - (CIH + CWRT));
+    let imgBottm = (CIT + CIH)
+    let cropperBottm = CT + CH
+
+    let imgMinRight = ((CL + CW) - (CIW + CWRL));
+    let imgRight = (CIL + CIW)
+    let cropperRight = CL + CW
+    if (imgBottm < cropperBottm){
+        Cropping_IMG.style.top = `${imgMinBottom}px`;
+    }
+    if (imgRight < cropperRight){
+        Cropping_IMG.style.left = `${imgMinRight}px`;
+    }
+}
+
 function zoom(event) {
     event.preventDefault();
-    Cropper_Wrapper_Rect= Cropper_Wrapper.getBoundingClientRect();
+    Cropper_Wrapper_Rect = Cropper_Wrapper.getBoundingClientRect();
     Cropping_IMG = document.querySelector('.Cropping_IMG');
     leImg = Cropping_IMG.getBoundingClientRect();
+    rect = el.getBoundingClientRect();
 
     scale += event.deltaY * -0.001;
     scaleDireaction = event.deltaY * -0.01;
@@ -73,15 +105,14 @@ function zoom(event) {
     // Apply scale transform
     if(scale==1){
         Cropping_IMG.style.width = `${Cropper_Wrapper_Rect.width}px`;
-        Cropping_IMG.style.transition = `all 0.5s ease`;
+        exactPositonImgOnZoom();
     }
-    else if(!(scale<=1) && (scale<=1.5) && (scaleDireaction<0)){
-        Cropping_IMG.style.width = `${leImg.width  - ((naW/2) / (scale+0.1))}px`;
-        Cropping_IMG.style.transition = `all 0.5s ease`;
+    else if(!(scale<=1.1) && (scale<=1.5) && (scaleDireaction<0)){
+        Cropping_IMG.style.width = `${leImg.width  - (naW / scale)/5}px`;
+        exactPositonImgOnZoom();
     }
     else if(!(scale<=1) && (scale<1.5) && (scaleDireaction>0)){
-        Cropping_IMG.style.width = `${leImg.width + (naW/2 * scale)}px`;
-        Cropping_IMG.style.transition = `all 0.5s ease`;
+        Cropping_IMG.style.width = `${leImg.width + (naW * scale)/5}px`;
     }
     
     DrawingImage();

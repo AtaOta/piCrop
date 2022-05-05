@@ -45,6 +45,7 @@ body{
     outline-style: solid;
     outline-color: #5c5c5c;
     outline-width: 100vw;
+    border: none;
     /* background-color: aliceblue; */
     /* z-index: 1; */
 }
