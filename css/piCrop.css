@@ -26,12 +26,10 @@ body{
     height: 600px;
     width: 100%;
     position: relative;
-    /* box-shadow: 0 0 3px black; */
     overflow: hidden;
 }
 .Cropping_IMG{
     position: absolute;
-    min-width: 100px;
     top: 0;
     left: 0;
     -webkit-tap-highlight-color: rgba(0,0,0,0);

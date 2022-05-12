@@ -81,8 +81,8 @@ const exactPositonImgOnZoom = () => {
     let imgMinRight = ((CL + CW) - (CIW + CWRL));
     let imgRight = (CIL + CIW)
     let cropperRight = CL + CW
-    if (imgBottm < cropperBottm){
-        Cropping_IMG.style.top = `${imgMinBottom}px`;
+    if (imgBottm < cropperBottm +5){
+        Cropping_IMG.style.top = `${imgMinBottom +5}px`;
     }
     if (imgRight < cropperRight){
         Cropping_IMG.style.left = `${imgMinRight}px`;
@@ -144,59 +144,42 @@ window.addEventListener('resize', ()=>{
 
 // `````````````````````````````CROPPER CONTAINER MOVEMENT CONTROLLER```````````````````````````````
 const cll_cropper_movement_function = (newX, newY) =>{
-    Cropper_Wrapper_Rect= Cropper_Wrapper.getBoundingClientRect();
+    const bounds = Cropper_Wrapper.getBoundingClientRect();
     rect = el.getBoundingClientRect();
     leImg = Cropping_IMG.getBoundingClientRect();
 
-    let crXstart = Cropper_Wrapper_Rect.left;
-    let crYstart = Cropper_Wrapper_Rect.top;
-    let crXend = Cropper_Wrapper_Rect.left + Cropper_Wrapper_Rect.width;
-    let crYend = Cropper_Wrapper_Rect.top + Cropper_Wrapper_Rect.height;
-
-    let RT = rect.top;
-    let RL = rect.left;
-    let ECW = rect.width;
-    let ECH = rect.height;
-    
-    el.style.left = `${RL - newX}px`;
-    el.style.top = `${RT - newY}px`;
+    /* BOUNDING CROPPEER RECTENGLE POSITION */
+    let x = Math.min(
+        Math.max(bounds.left, (rect.left - newX)), bounds.right - rect.width
+      );   
+    let y = Math.min(
+        Math.max(bounds.top, (rect.top - newY)), bounds.bottom - rect.height
+      );
+    if (rect.left <= leImg.left){
+        x = Math.min(
+            Math.max(leImg.left, (leImg.left - newX)), bounds.right - rect.width
+          );
+    }
+    else if (rect.right >= leImg.right){
+        x = Math.min(
+            Math.max(bounds.left, (rect.left - newX)), (leImg.right - rect.width)
+          );
+    }
+    if (rect.top <= leImg.top){
+        y = Math.min(
+            Math.max(leImg.top, (leImg.top - newY)), bounds.bottom - rect.height
+          );
+    }
+    else if (rect.bottom >= leImg.bottom){
+        y = Math.min(
+            Math.max(bounds.top, (rect.top - newY)), (leImg.bottom - rect.height)
+          );
+    }
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
 
     // CALL FUNCTION FOR DRAWING IMAGE
     DrawingImage()
-    
-    if (RL < (crXstart)){
-        el.style.left = `${crXstart}px`;
-        return
-    }
-    else if (RT < (crYstart)){
-        el.style.top = `${crYstart}px`;
-        return
-    }
-    else if ((RL + ECW) > (crXend)){
-        el.style.left = `${crXend - ECW}px`;
-        return
-    }
-    else if ((RT + ECH) > (crYend)){
-        el.style.top = `${crYend - ECH}px`;
-        return
-    }
-    else if(RL < (leImg.left)){
-        el.style.left = `${leImg.left}px`;
-        return
-    }
-    else if(RT < (leImg.top)){
-        el.style.top = `${leImg.top}px`;
-        return
-    }
-    else if((RL + ECW) > (leImg.left + leImg.width)){
-        el.style.left = `${leImg.left + leImg.width - ECW}px`;
-        return
-    }
-    else if((RT + ECH) > (leImg.top + leImg.height)-5){
-        el.style.top = `${leImg.top + leImg.height - ECH -5}px`;
-        return
-    }
-    
 }
 
 // TOUCH FOUNCTION FOR CROPPER CONTAINER
@@ -254,6 +237,7 @@ function mousedown(e){
         window.removeEventListener("mouseup", mouseup);
     }
 }
+
 // ```````````````````````````END TOUCH FUNCTION FOR CROPPER CONTAINER````````````````````````````
 
 // `````````````````````````````````RESIZER ACTION CONTAINER```````````````````````````````````````
@@ -445,53 +429,41 @@ for (let resizer of resizers){
 
 // ```````````````````````````````POSITIONING IMAGE LOGICAL CUNCTION`````````````````````````````````
 const PostionImage = (newX, newY)=>{
-    Cropper_Wrapper_Rect= Cropper_Wrapper.getBoundingClientRect();
+    let bounds = Cropper_Wrapper.getBoundingClientRect();
     let leImg = Cropping_IMG.getBoundingClientRect();
-    let cropperRect = el.getBoundingClientRect();
+    let rect = el.getBoundingClientRect();
     Cropping_IMG.style.transition = `none`;
-    // let leWrapper = Cropper_Wrapper_Dimension;
+    
+    /* BOUNDING IMAGE POSTION */
+    let Main_Parent = Cropper_Wrapper.parentElement.parentElement.getBoundingClientRect();
+    let x = (leImg.left - newX - bounds.left);
+    let y = (leImg.top - newY - bounds.top);
+    if (rect.left <= leImg.left){
+        x = Math.min(
+                Math.max(Main_Parent.left, (rect.left - newX - bounds.left)),
+            );
+    }
+    else if (rect.right >= leImg.right){
+        x = Math.min(
+                Math.max(Main_Parent.right, (rect.left - newX - bounds.left)), ((rect.right - newX) - bounds.left - leImg.width)
+            );
+    }
+    if (rect.top <= leImg.top){
+        y = Math.min(
+                Math.max(Main_Parent.top, (rect.top - bounds.top - newY )),
+            );
+    }
+    else if (rect.bottom >= leImg.bottom){
+        y = Math.min(
+                Math.max(Main_Parent.bottom, (rect.top - bounds.top - newY )), ((rect.bottom - newY) - bounds.top - leImg.height)
+            );
+    }
 
-    let CH = cropperRect.height;
-    let CW = cropperRect.width;
-    let CT = cropperRect.top;
-    let CL = cropperRect.left;
-    let CIH = leImg.height;
-    let CIW = leImg.width;
-    let CIT = leImg.top;
-    let CIL = leImg.left;
-    let CWRT = Cropper_Wrapper_Rect.top;
-    let CWRL = Cropper_Wrapper_Rect.left;
-
-    let imgMinBottom = ((CT + CH) - (CIH + CWRT));
-    let imgBottm = (CIT + CIH)
-    let cropperBottm = CT + CH
-
-    let imgMinRight = ((CL + CW) - (CIW + CWRL));
-    let imgRight = (CIL + CIW)
-    let cropperRight = CL + CW
-
-    Cropping_IMG.style.left = `${CIL - newX - CWRL}px`;
-    Cropping_IMG.style.top = `${CIT - newY - CWRT}px`;
+    Cropping_IMG.style.left = `${x}px`;
+    Cropping_IMG.style.top = `${y}px`;
 
     // CALL FUNCTION FOR DRAWING IMAGE
     DrawingImage()
-    
-    if (CIL > CL){
-        Cropping_IMG.style.left = `${CL - CWRL}px`;
-        return
-    }
-    else if (CIT > CT){
-        Cropping_IMG.style.top = `${CT - CWRT}px`;
-        return
-    }
-    else if (imgBottm < cropperBottm +5){
-        Cropping_IMG.style.top = `${imgMinBottom +5}px`;
-        return
-    }
-    else if (imgRight < cropperRight){
-        Cropping_IMG.style.left = `${imgMinRight}px`;
-        return
-    }
 }
 // IMAGE POSITIONING START ON MOUSE DOWN:
 Cropping_IMG.addEventListener('mousedown', IMGmousedown);
@@ -544,5 +516,3 @@ function IMGtouchstart(e){
         window.removeEventListener('touchend', touchend);
     }
 }
-
-

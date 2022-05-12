@@ -21,6 +21,7 @@
 ### 8] Image position exact inside holder [Yes]
 ### 9] Image position exact inside image [Yes]
 ### 10] Image resize on wheel trigger [Yes]
+### 11] Smooth cropper movement [Yes]
 
 
 ## MISSING [Unsuccess]:
