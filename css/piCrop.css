@@ -18,7 +18,7 @@ body{
     width: 400px;
     max-width: 98vw;
     height: auto;
-    /* overflow: hidden; */
+    background-color: #949494;
 }
 .Cropper_Wrapper{
     max-height: 100vh;
@@ -40,31 +40,32 @@ body{
     background-color: transparent;
     width: auto;
     height: auto;
-    outline-style: solid;
-    outline-color: #5c5c5c;
-    outline-width: 100vw;
     border: none;
-    /* background-color: aliceblue; */
-    /* z-index: 1; */
+    outline-style: solid;
+    outline-color: #949494;
+    outline-width: 100vw;
+    transform: scale(1) translate(0px, 0px);
 }
 .Cropping_IMG img{
     position: relative;
     object-fit: fill;
     width: 100%;
     z-index: -1;
+    outline-style: solid;
+    outline-color: #949494;
+    outline-width: 100vw;
 }
 
 /* `````````````````````````````````````````````````````````````````````````````````` */
 .item{
-    height: 100px;
-    width: 100px;
+    height: 150px;
+    width: 150px;
     background-color: transparent;
     position: absolute;
     cursor: move;
     outline-style: solid;
     outline-color: #0000009f;
     outline-width: 100vw;
-    /* z-index: 2; */
 }
 @media only screen and (max-width: 850px){
     .item{
@@ -136,5 +137,4 @@ body{
     left: 0;
     top: 0;
     background-color: transparent;
-    /* z-index: -1; */
 }

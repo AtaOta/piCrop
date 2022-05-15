@@ -22,9 +22,9 @@
 ### 9] Image position exact inside image [Yes]
 ### 10] Image resize on wheel trigger [Yes]
 ### 11] Smooth cropper movement [Yes]
+### 12] Cropper side resize buttons [Yes]
 
 
 ## MISSING [Unsuccess]:
-### 1] Cropper side resize buttons [No]
 ### 2] Image resize on-touch [No]
 ### 3] Cropper Return Base-64 data [No]
