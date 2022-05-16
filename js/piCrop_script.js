@@ -1,43 +1,48 @@
-const Cropper_Wrapper = document.querySelector(".Cropper_Wrapper")
+const CropWarp = document.querySelector(".Cropper_Wrapper")
 const el = document.querySelector('.item');
-let Image_Cover = document.querySelector('.Cropping_IMG');
-const InputImg = document.getElementsByClassName('inputImg')[0]
+const InpImg = document.getElementsByClassName('inputImg')[0]
+const resizers = document.querySelectorAll(".resizer");
+const naW = InpImg.naturalWidth;
+const naH = InpImg.naturalHeight;
+
+let ICo = document.querySelector('.Cropping_IMG');
 let GetCanvas = document.getElementById('canvas');
 let resizer = document.querySelector('.resizer');
-const resizers = document.querySelectorAll(".resizer");
-const naW = InputImg.naturalWidth;
-const naH = InputImg.naturalHeight;
 
-let  bounds, rect ,leImg ,crXbigining , crYbigining, currentResizer, resizerWidth;
+let  bounds, rect ,leImg ,crX1 , crY1, curRes, resW, canvasWide, cansvasHigh;
 let isResizing = false, initialSize = 150, scale, pointX = 0, pointY = 0, start = {x: 0, y:0};
 
 const piCrop = () =>{
-    bounds = Cropper_Wrapper.getBoundingClientRect();
+    bounds = CropWarp.getBoundingClientRect();
     rect = el.getBoundingClientRect();
-    leImg = InputImg.getBoundingClientRect();
-    resizerWidth = resizer.getBoundingClientRect().width;
+    leImg = InpImg.getBoundingClientRect();
+    resW = resizer.getBoundingClientRect().width;
 
-    crXbigining = bounds.left;
-    crYbigining = bounds.top;
+    crX1 = bounds.left;
+    crY1 = bounds.top;
 
-    el.style.left = `${((Cropper_Wrapper.clientWidth - el.clientWidth) /2) + crXbigining}px`;
-    el.style.top = `${((Cropper_Wrapper.clientHeight - el.clientHeight) /2) + crYbigining}px`;
+    el.style.left = `${((CropWarp.clientWidth - el.clientWidth) /2) + crX1}px`;
+    el.style.top = `${((CropWarp.clientHeight - el.clientHeight) /2) + crY1}px`;
     el.style.width = `${initialSize}px`;
     el.style.height = `${initialSize}px`;
     
-    Image_Cover.style.width = `${Cropper_Wrapper.clientWidth}px`;
-    Image_Cover.style.top = `${(Cropper_Wrapper.clientHeight - Image_Cover.clientHeight)/2}px`;
-
-    GetCanvas.width = `${el.clientWidth}`;
-    GetCanvas.height = `${el.clientHeight}`;
+    ICo.style.width = `${CropWarp.clientWidth}px`;
+    ICo.style.top = `${(CropWarp.clientHeight - ICo.clientHeight)/2}px`;
     scale = 1
 }
 piCrop();
 
+const CanVasDimension = () => {
+    canvasWide = rect.width //* (naW/leImg.width)
+    cansvasHigh = rect.height //* (naH/leImg.height)
+    GetCanvas.width = `${canvasWide}`;
+    GetCanvas.height = `${cansvasHigh}`;
+}
+CanVasDimension();
+
 /* ___________________________________[ DRAW IMAGE INSIDE CANVAS ]___________________________________ */
 const DrawingImage = () =>{
-    // DRAWING AN IMAGE INSIDE THE CANVAS
-    leImg = InputImg.getBoundingClientRect();
+    leImg = InpImg.getBoundingClientRect();
     rect = el.getBoundingClientRect();
 
     let DrawFormLeft = (rect.left - leImg.left)
@@ -49,17 +54,18 @@ const DrawingImage = () =>{
     let imagePreDrawWidth = (rect.width)*(naW/leImg.width);
     let imagePreDrawHeight = (rect.height)*(naW/leImg.width);
 
+    // DRAWING AN IMAGE INSIDE THE CANVAS
     const image = new Image(),
     canvas = GetCanvas,
     ctx = canvas.getContext('2d');
-    image.src = InputImg.src
+    image.src = InpImg.src
     
     image.addEventListener('load', () => {
         ctx.drawImage(image,
             formLeft, fromTop,   // Start at 70/20 pixels from the left and the top of the image (crop),
             imagePreDrawWidth, imagePreDrawHeight,   // "Get" a `50 * 50` (w * h) area from the source image (crop),
             0, 0,   // Place the result at 0, 0 in the canvas,
-            el.clientWidth, el.clientHeight // With as width / height: 100 * 100 (scale)
+            canvasWide, cansvasHigh // With as width / height: 100 * 100 (scale)
         );
     });
 }
@@ -70,17 +76,14 @@ DrawingImage();
 /* ___________________________________[ WINDOW SIZE DETECTION ]___________________________________ */
 window.addEventListener('resize', ()=>{
     piCrop();
+    CanVasDimension();
     DrawingImage();
 })
 /* ____________________________________________[ ### ]____________________________________________ */
 
 
 /* ___________________________[ CROPPER CONTAINER MOVEMENT CONTROLLER ]___________________________ */
-const cll_cropper_movement_function = (newX, newY) =>{
-    bounds = Cropper_Wrapper.getBoundingClientRect();
-    rect = el.getBoundingClientRect();
-    leImg = InputImg.getBoundingClientRect();
-
+const ccmf = (newX, newY) =>{
     /* BOUNDING CROPPEER RECTENGLE POSITION */
     let x = Math.min(
         Math.max(bounds.left, (rect.left - newX)), bounds.right - rect.width
@@ -118,6 +121,7 @@ const cll_cropper_movement_function = (newX, newY) =>{
 // TOUCH EVENT FOR CROPPER CONTAINER
 el.addEventListener('touchstart', touchstart);
 function touchstart(e){
+    e.preventDefault();
     let touch = e.touches[0];
 
     window.addEventListener('touchmove', touchmove);
@@ -132,7 +136,7 @@ function touchstart(e){
             let newX = prevX - touch.clientX;
             let newY = prevY - touch.clientY;
 
-            cll_cropper_movement_function(newX, newY);
+            ccmf(newX, newY);
             
             prevX = touch.clientX;
             prevY = touch.clientY;
@@ -148,6 +152,8 @@ function touchstart(e){
 // MOUSE EVENT FOR CROPPER CONTAINER
 el.addEventListener('mousedown', mousedown);
 function mousedown(e){
+    e.preventDefault();
+    el.style.transition = `none`;
     window.addEventListener('mousemove', mousemove);
     window.addEventListener('mouseup', mouseup);
 
@@ -155,12 +161,13 @@ function mousedown(e){
     let prevY = e.clientY;
 
     function mousemove(e){
+        e.preventDefault();
         let touch = e
         if (!isResizing){
             let newX = prevX - touch.clientX;
             let newY = prevY - touch.clientY;
 
-            cll_cropper_movement_function(newX, newY);
+            ccmf(newX, newY);
             
             prevX = touch.clientX;
             prevY = touch.clientY;
@@ -175,9 +182,7 @@ function mousedown(e){
 
 
 /* _________________________________[ RESIZER CROPPER CONTAINER ]_________________________________  */
-const cll_resizer_function = (currentResizer, touch, newX, newY)=>{
-    leImg = InputImg.getBoundingClientRect();
-    rect = el.getBoundingClientRect();
+const CropperResizer = (currentResizer, touch, newX, newY)=>{
 
     let elWidth = rect.width, elHeight = rect.height;
     let clientEXO = Math.ceil(touch.clientX), clientYOO = Math.ceil(touch.clientY);
@@ -185,6 +190,10 @@ const cll_resizer_function = (currentResizer, touch, newX, newY)=>{
     let rectMinLeft = Math.ceil(bounds.left);
     let rectMinTop = Math.ceil(bounds.top);
     let rectMaxBottom = Math.ceil(bounds.bottom);
+
+    if(isResizing == false){
+        return;
+    }
 
     if(rectMaxRight >= leImg.right){
         rectMaxRight = Math.ceil(leImg.right);
@@ -199,32 +208,42 @@ const cll_resizer_function = (currentResizer, touch, newX, newY)=>{
         rectMaxBottom = Math.ceil(leImg.bottom);
     }
 
-    let cR = rectMaxRight-rect.left;
-    let cRmx = Math.max(resizerWidth, cR);
-    let cRmn = Math.min(resizerWidth, cR);
-    let cB = rectMaxBottom-rect.top;
-    let cBmx = Math.max(resizerWidth, cB);
-    let cBmn = Math.min(resizerWidth, cB);
-    let cL = rect.right-rectMinLeft;
-    let cLmx = Math.max(resizerWidth, cL);
-    let cLmn = Math.min(resizerWidth, cL);
-    let cT = rect.bottom-rectMinTop;
-    let cTmx = Math.max(resizerWidth, cT);
-    let cTmn = Math.min(resizerWidth, cT);
+    let cR = rectMaxRight-rect.left, cRmx = Math.max(resW, cR), cRmn = Math.min(resW, cR);
+    let cB = rectMaxBottom-rect.top, cBmx = Math.max(resW, cB), cBmn = Math.min(resW, cB);
+    let cL = rect.right-rectMinLeft, cLmx = Math.max(resW, cL), cLmn = Math.min(resW, cL);
+    let cT = rect.bottom-rectMinTop, cTmx = Math.max(resW, cT), cTmn = Math.min(resW, cT);
 
-    if (currentResizer.classList.contains("se")){
+    if(currentResizer.classList.contains("e")){
+        elWidth = rect.width - newX;
+        if (clientEXO >= rectMaxRight){
+            elWidth = cRmx;
+        }
+        else if(clientEXO <= (rect.left+resW)){
+            elWidth = cRmn;
+        }
+    }
+    else if (currentResizer.classList.contains("se")){
         elWidth = rect.width - newX;
         elHeight = rect.height - newY;
         if (clientEXO >= rectMaxRight){
             elWidth = cRmx;
         }
-        else if(clientEXO <= (rect.left+resizerWidth)){
+        else if(clientEXO <= (rect.left+resW)){
             elWidth = cRmn;
         }
         if (clientYOO >= rectMaxBottom){
             elHeight = cBmx;
         }
-        else if(clientYOO <= (rect.top+resizerWidth)){
+        else if(clientYOO <= (rect.top+resW)){
+            elHeight = cBmn;
+        }
+    }
+    else if (currentResizer.classList.contains("s")){
+        elHeight = rect.height - newY;
+        if (clientYOO >= rectMaxBottom){
+            elHeight = cBmx;
+        }
+        else if(clientYOO <= (rect.top+resW)){
             elHeight = cBmn;
         }
     }
@@ -234,14 +253,24 @@ const cll_resizer_function = (currentResizer, touch, newX, newY)=>{
         if (clientEXO <= rectMinLeft){
             elWidth = cLmx;
         }
-        else if(clientEXO >= (rect.right-resizerWidth)){
+        else if(clientEXO >= (rect.right-resW)){
             elWidth = cLmn;
         }
         if (clientYOO >= rectMaxBottom){
             elHeight = cBmx;
         }
-        else if(clientYOO <= (rect.top+resizerWidth)){
+        else if(clientYOO <= (rect.top+resW)){
             elHeight = cBmn;
+        }
+        el.style.left = `${rect.right - elWidth}px`;
+    }
+    else if (currentResizer.classList.contains("w")){
+        elWidth = rect.width + newX;
+        if (clientEXO <= rectMinLeft){
+            elWidth = cLmx;
+        }
+        else if(clientEXO >= (rect.right-resW)){
+            elWidth = cLmn;
         }
         el.style.left = `${rect.right - elWidth}px`;
     }
@@ -251,13 +280,23 @@ const cll_resizer_function = (currentResizer, touch, newX, newY)=>{
         if (clientEXO >= rectMaxRight){
             elWidth = cRmx;
         }
-        else if(clientEXO <= (rect.left+resizerWidth)){
+        else if(clientEXO <= (rect.left+resW)){
             elWidth = cRmn;
         }
         if (clientYOO <= rectMinTop){
             elHeight = cTmx;
         }
-        else if(clientYOO >= (rect.bottom - resizerWidth)){
+        else if(clientYOO >= (rect.bottom - resW)){
+            elHeight = cTmn;
+        }
+        el.style.top = `${rect.bottom - elHeight}px`;
+    }
+    else if (currentResizer.classList.contains("n")){
+        elHeight = rect.height + newY;
+        if (clientYOO <= rectMinTop){
+            elHeight = cTmx;
+        }
+        else if(clientYOO >= (rect.bottom - resW)){
             elHeight = cTmn;
         }
         el.style.top = `${rect.bottom - elHeight}px`;
@@ -268,13 +307,13 @@ const cll_resizer_function = (currentResizer, touch, newX, newY)=>{
         if (clientEXO <= rectMinLeft){
             elWidth = cLmx;
         }
-        else if(clientEXO >= (rect.right-resizerWidth)){
+        else if(clientEXO >= (rect.right-resW)){
             elWidth = cLmn;
         }
         if (clientYOO <= rectMinTop){
             elHeight = cTmx;
         }
-        else if(clientYOO >= (rect.bottom - resizerWidth)){
+        else if(clientYOO >= (rect.bottom - resW)){
             elHeight = cTmn;
         }
         el.style.top = `${rect.bottom - elHeight}px`;
@@ -283,18 +322,18 @@ const cll_resizer_function = (currentResizer, touch, newX, newY)=>{
     
     el.style.width = `${elWidth}px`;
     el.style.height = `${elHeight}px`;
-    GetCanvas.width = `${rect.width}`;
-    GetCanvas.height = `${rect.height}`;
     
     // CALL FUNCTION FOR DRAWING IMAGE
-    DrawingImage()
+    CanVasDimension();
+    DrawingImage();
 }
 
 for (let resizer of resizers){
     resizer.addEventListener('touchstart', touchstart);
 
     function touchstart(e){
-        currentResizer = e.target;
+        e.preventDefault();
+        curRes = e.target;
         let touch = e.touches[0];
 
         let prevX = touch.clientX;
@@ -303,13 +342,14 @@ for (let resizer of resizers){
         window.addEventListener('touchend', touchend);
     
         function touchmove(e){
+            e.preventDefault();
             isResizing = true;
             let touch = e.touches[0];
             let newX = (prevX - touch.clientX);
             let newY = (prevY - touch.clientY);
 
-            cll_resizer_function(
-                currentResizer, touch,
+            CropperResizer(
+                curRes, touch,
                 newX, newY,
             );
             prevX = touch.clientX;
@@ -317,15 +357,17 @@ for (let resizer of resizers){
         }
 
         function touchend(){
+            isResizing = false;
             window.removeEventListener('touchmove', touchmove);
             window.removeEventListener('touchend', touchend);
-            isResizing = false;
         }
     }
 
     resizer.addEventListener('mousedown', mousedown);
     function mousedown(e){
-        currentResizer = e.target;
+        e.preventDefault();
+        el.style.transition = `none`;
+        curRes = e.target;
 
         let prevX = e.clientX;
         let prevY = e.clientY;
@@ -333,13 +375,13 @@ for (let resizer of resizers){
         window.addEventListener('mouseup', mouseup);
 
         function mousemove(e){
+            e.preventDefault();
             isResizing = true;
             let touch = e;
             let newX = (prevX - touch.clientX);
             let newY = (prevY - touch.clientY);
-
-            cll_resizer_function(
-                currentResizer, touch,
+            CropperResizer(
+                curRes, touch,
                 newX, newY,
             );
             prevX = touch.clientX;
@@ -347,8 +389,8 @@ for (let resizer of resizers){
         }
 
         function mouseup(){
-            window.removeEventListener('mousemove', mousemove);
             isResizing = false;
+            window.removeEventListener('mousemove', mousemove);
             window.removeEventListener('mouseup', mouseup);
         }
     }
@@ -357,8 +399,8 @@ for (let resizer of resizers){
 
 /* ___________________________[ POSITIONING IMAGE ACCORDING TO CROPPER ]___________________________ */
 const setImageTransForm = () => {
-    leImg = InputImg.getBoundingClientRect();
-    bounds = Cropper_Wrapper.getBoundingClientRect();
+    leImg = InpImg.getBoundingClientRect();
+    bounds = CropWarp.getBoundingClientRect();
     rect = el.getBoundingClientRect();
 
     let img_start_Height = (naH/naW)*(bounds.width)
@@ -389,7 +431,7 @@ const setImageTransForm = () => {
     }
 
     // SCALING IMAGE ON MOUSE SCRLL AND TRANSFROM ON TOUCH MOVE/MOUSE MOVE
-    Image_Cover.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+    ICo.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
     
     // CALL FUNCTION FOR DRAWING IMAGE
     DrawingImage()
@@ -397,7 +439,7 @@ const setImageTransForm = () => {
 
 
 // IMAGE POSITIONING START ON MOUSE DOWN:
-Image_Cover.addEventListener('mousedown', IMGmousedown);
+ICo.addEventListener('mousedown', IMGmousedown);
 
 function IMGmousedown(e){
     start = {x: (e.clientX - pointX), y: (e.clientY - pointY)};
@@ -418,7 +460,7 @@ function IMGmousedown(e){
 }
 
 // IMAGE POSITIONING START ON > TOUCH START:
-Image_Cover.addEventListener('touchstart', IMGtouchstart);
+ICo.addEventListener('touchstart', IMGtouchstart);
 function IMGtouchstart(e){
     let touch = e.touches[0];
     start = {x: (touch.clientX - pointX), y: (touch.clientY - pointY)};
@@ -439,19 +481,19 @@ function IMGtouchstart(e){
     }
 }
 // ZOOM IMAGE
-let Cropper_Wrappe_Holder = document.querySelector('.Cropper_Wrappe_Holder')
-Cropper_Wrappe_Holder.onwheel = function(e){
+let CWHolder = document.querySelector('.Cropper_Wrappe_Holder')
+CWHolder.onwheel = function(e){
     e.preventDefault();
-    leImg = InputImg.getBoundingClientRect();
-    rect = el.getBoundingClientRect();
-    if (rect.height > leImg.height){
-        piCrop();
-    }
 
     let delta = (e.wheelDelta ? e.wheelDelta : -e.deltaY);
     (delta > 0) ? (scale += 0.1) : (scale -= 0.1);
-    scale = Math.min(Math.max(1, scale), 2.5);
+    scale = Math.min(Math.max(1, scale), 5);
 
     setImageTransForm();
+    if (rect.height > leImg.height){
+        el.style.height = `${leImg.height}px`;
+        el.style.top = `${leImg.top}px`;
+        CanVasDimension();
+    }
 }
 /* ____________________________________________[ ### ]____________________________________________ */

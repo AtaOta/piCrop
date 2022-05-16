@@ -92,8 +92,8 @@ body{
 }
 .resizer::before{
     content: "";
-    height: 12px;
-    width: 12px;
+    height: 10px;
+    width: 10px;
     background-color: #00f55ed5;
  
 }
@@ -144,4 +144,5 @@ body{
     left: 0;
     top: 0;
     background-color: transparent;
+    /* display: none; */
 }
