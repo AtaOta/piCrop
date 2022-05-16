@@ -28,3 +28,10 @@
 ## MISSING [Unsuccess]:
 ### 2] Image resize on-touch [No]
 ### 3] Cropper Return Base-64 data [No]
+
+<h4 align="center">
+  🔆First Look🔆
+</h4>
+<h3 align="center">
+<img src="./Algorithm/piCrop_png.png" alt='emoji' width="100%" height="100%">
+</h3>
