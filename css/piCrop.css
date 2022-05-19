@@ -4,29 +4,40 @@
 }
 body{
     background-color: aliceblue;
-}
-.my_ImageCropper{
-    display: flex;
-    flex-direction: column;
     height: 100vh;
     width: 100vw;
-    justify-content: center;
+    overflow: auto;
+}
+.Main_Wrapper{
+    height: auto;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
 }
 
-.Cropper_Wrappe_Holder{
-    width: 400px;
-    max-width: 98vw;
+.pi_ImageCropper{
+    position: relative;
     height: auto;
+    width: 400px;
+    height: 80vh;
+    padding: 5px;
+    max-width: 95vw;
+    overflow: hidden;
+    z-index: 1;
     background-color: #949494;
 }
-.Cropper_Wrapper{
-    max-height: 100vh;
-    max-width: 100vw;
-    height: 600px;
+.Cropper_Wrappe_Holder{
     width: 100%;
-    position: relative;
+    height: 100%;
     overflow: hidden;
+}
+.Cropper_Wrapper{
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
 }
 .Cropping_IMG{
     position: absolute;
@@ -44,6 +55,7 @@ body{
     outline-style: solid;
     outline-color: #949494;
     outline-width: 100vw;
+    overflow: hidden;
     transform: scale(1) translate(0px, 0px);
 }
 .Cropping_IMG img{
@@ -54,6 +66,7 @@ body{
     outline-style: solid;
     outline-color: #949494;
     outline-width: 100vw;
+    overflow: hidden;
 }
 
 /* `````````````````````````````````````````````````````````````````````````````````` */
@@ -66,7 +79,7 @@ body{
     outline-style: solid;
     outline-color: #0000009f;
     outline-width: 100vw;
-    border: 1px solid #00f55e;
+    border: 1px solid #3fb37f;
     box-sizing: border-box;
     border-style: dashed;
 }
@@ -80,7 +93,6 @@ body{
     position: absolute;
     width: 30px;
     height: 30px;
-    background-color: rgba(253, 236, 2, 0.555);
     background-color: transparent;
     display: flex;
     align-items: center;
@@ -88,13 +100,13 @@ body{
     /* outline-style: solid;
     outline-color: #00a336;
     outline-width: 1px; */
-    z-index: 5;
+    z-index: 50;
 }
 .resizer::before{
     content: "";
     height: 10px;
     width: 10px;
-    background-color: #00f55ed5;
+    background-color: #36cc89;
  
 }
 .nw {
@@ -138,9 +150,17 @@ body{
     left: -15px;
     cursor: w-resize;
 }
-
+.canVas_Warpper{
+    width: 100vw;
+    overflow: hidden;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+}
 #canvas{
-    position: absolute;
+    /* position: absolute; */
     left: 0;
     top: 0;
     background-color: transparent;
