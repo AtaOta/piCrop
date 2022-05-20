@@ -1,3 +1,4 @@
+const piCropper = document.querySelector(".pi_ImageCropper");
 const CropWarp = document.querySelector(".Cropper_Wrapper")
 const el = document.querySelector('.item');
 const InputImage = document.getElementsByClassName('inputImg')[0]
@@ -9,16 +10,22 @@ const naH = InputImage.naturalHeight;
 let ImageCover = document.querySelector('.Cropping_IMG');
 let GetCanvas = document.getElementById('canvas');
 
-let  bounds, rect ,leImg, resizerWidth, canvasWide, cansvasHigh;
-let rectStart = {x: 0, y:0}, rectX = 0, rectY = 0, minRectX, maxRectX, minRectY, maxRectY;
-let isResizing = false, initialSize = 150, scale, pointX = 0, pointY = 0, start = {x: 0, y:0};
-let ResizerOuterXright = 0, ResizerOuterYbottom = 0, ResizerOuterXleft = 0, ResizerOuterYtop = 0;
+let InnerPadding, bounds, rect, leImg, resizerWidth, canvasWide, cansvasHigh,
+    rectStart, rectX, rectY, minRectX, maxRectX, minRectY, maxRectY,
+    isResizing, initialSize, scale, pointX, pointY, start,
+    ResizerOuterXright, ResizerOuterYbottom, ResizerOuterXleft, ResizerOuterYtop;
 
 const piCrop = () =>{
+    rectStart = {x: 0, y:0}, rectX = 0, rectY = 0;
+    isResizing = false, initialSize = 150, pointX = 0, pointY = 0, start = {x: 0, y:0};
+    ResizerOuterXright = 0, ResizerOuterYbottom = 0, ResizerOuterXleft = 0, ResizerOuterYtop = 0;
+    scale = 1
+
     bounds = CropWarp.getBoundingClientRect();
     rect = el.getBoundingClientRect();
     leImg = InputImage.getBoundingClientRect();
     resizerWidth = resizer.getBoundingClientRect().width;
+    InnerPadding = (piCropper.clientWidth - bounds.width) / 2;
 
     el.style.left = `${(CropWarp.clientWidth - el.clientWidth) /2}px`;
     el.style.top = `${(CropWarp.clientHeight - el.clientHeight) /2}px`;
@@ -27,8 +34,6 @@ const piCrop = () =>{
     
     ImageCover.style.width = `${CropWarp.clientWidth}px`;
     ImageCover.style.top = `${(CropWarp.clientHeight - ImageCover.clientHeight)/2}px`;
-    rectStart = {x: 0, y:0}
-    scale = 1
 }
 piCrop();
 
@@ -88,7 +93,7 @@ const Cropper_Container_Movement = () =>{
     let mxLeft = (leImg.left >= bounds.left) ? leImg.left : bounds.left;
     let dxImgLeft = (leImg.left >= bounds.left) ? (leImg.left-bounds.left) : 0;
     let dxImgRight = (leImg.right <= bounds.right) ? (bounds.right - leImg.right) : 0;
-    minRectX = (-(bounds.right - (bounds.width + initialSize)/2 - mxLeft - 4));
+    minRectX = (-(bounds.right - (bounds.width + initialSize)/2 - mxLeft - InnerPadding));
     maxRectX = (bounds.width + minRectX - rect.width -dxImgLeft -dxImgRight);
     rectX = Math.min(
         Math.max(rectX, minRectX), maxRectX
@@ -96,9 +101,9 @@ const Cropper_Container_Movement = () =>{
     
     /* BOUNDING CROPPER RECTANGLE VERTICALLY */
     let mxTop = (leImg.top >= bounds.top) ? leImg.top : bounds.top;
-    let dyImgTop = (leImg.top >= bounds.top) ? (leImg.top-bounds.top) : 0;
+    let dyImgTop = (leImg.top >= bounds.top) ? (leImg.top - bounds.top) : 0;
     let dyImgBottom = (leImg.bottom <= bounds.bottom) ? (bounds.bottom - leImg.bottom) : 0;
-    minRectY = (-(bounds.bottom - (bounds.height + initialSize)/2 - mxTop - 4));
+    minRectY = (-(bounds.bottom - (bounds.height + initialSize)/2 - mxTop - InnerPadding));
     maxRectY = (bounds.height + minRectY - rect.height -dyImgTop -dyImgBottom);
     rectY = Math.min(
         Math.max(rectY, minRectY), maxRectY
@@ -110,9 +115,6 @@ const Cropper_Container_Movement = () =>{
     /* CALL FUNCTION FOR DRAWING IMAGE */
     CanVasDimension();
     DrawingImage()
-}
-const transformRec = () =>{
-    el.style.transform = `translate(${rectX}px, ${rectY}px)`;
 }
 // TOUCH EVENT FOR CROPPER CONTAINER
 el.addEventListener('touchstart', touchstart);
@@ -165,19 +167,17 @@ function mousedown(e){
 
 /* _________________________________[ RESIZER CROPPER CONTAINER ]_________________________________  */
 const CropperResizer = (currentResizer, touch, prevX, prevY)=>{
-    let elWidth = rect.width, elHeight = rect.height;
     let rectMaxRight = (bounds.right >= leImg.right) ? (leImg.right) : (bounds.right);
     let rectMinLeft = (bounds.left <= leImg.left) ? (leImg.left) : (bounds.left);
     let rectMinTop = (bounds.top <= leImg.top) ? (leImg.top) : (bounds.top);
     let rectMaxBottom = (bounds.bottom >= leImg.bottom) ? (leImg.bottom) : (bounds.bottom);
-    let rectMargin = 1;
     let newX = (prevX - touch.clientX);
     let newY = (prevY - touch.clientY);
 
-    ResizerOuterXright = (rect.right >= rectMaxRight) ? (ResizerOuterXright += newX) : 0;
+    ResizerOuterXright = (Math.ceil(rect.right) >= Math.ceil(rectMaxRight)) ? (ResizerOuterXright += newX) : 0;
     ResizerOuterYbottom = (Math.ceil(rect.bottom) >= Math.ceil(rectMaxBottom)) ? (ResizerOuterYbottom += newY) : 0;
-    ResizerOuterXleft = (rect.left <= rectMinLeft) ? (ResizerOuterXleft += newX + rectMargin) : 0;
-    ResizerOuterYtop = (Math.ceil(rect.top) <= Math.ceil(rectMinTop)) ? (ResizerOuterYtop += newY + rectMargin) : 0;
+    ResizerOuterXleft = (Math.round(rect.left) <= Math.round(rectMinLeft)) ? (ResizerOuterXleft += newX) : 0;
+    ResizerOuterYtop = (Math.round(rect.top) <= Math.round(rectMinTop)) ? (ResizerOuterYtop += newY) : 0;
 
     // BOUNDING MAX-WIDHT OF RECTANGLE ACCORDING TO RIGHT-SIDE MOVEMENT
     let elmRightWidth = (rect.width - newX - ResizerOuterXright);
@@ -237,6 +237,8 @@ const CropperResizer = (currentResizer, touch, prevX, prevY)=>{
         el.style.width = `${elmRightWidth}px`;
         el.style.height = `${elmTopHeight}px`;
     }
+    // requestAnimationFrame(Cropper_Container_Movement);
+    Cropper_Container_Movement();
 }
 
 for (let resizer of resizers){
@@ -264,7 +266,6 @@ for (let resizer of resizers){
             );
             prevX = touch.clientX;
             prevY = touch.clientY;
-            Cropper_Container_Movement();
         }
 
         function touchend(){
@@ -297,7 +298,7 @@ for (let resizer of resizers){
             );
             prevX = touch.clientX;
             prevY = touch.clientY;
-            Cropper_Container_Movement();
+            // Cropper_Container_Movement();
         }
 
         function mouseup(){
@@ -316,6 +317,7 @@ const setImageTransForm = () => {
     let dx = (leImg.width - bounds.width)/2
     let dy = (leImg.height - img_start_Height)/2
     let dyDot = (bounds.height - img_start_Height)/2
+    let rectBorderScale = 2*scale
     
     if((pointX) >= (rect.left - bounds.left + dx)){
         pointX = Math.min(
@@ -327,14 +329,14 @@ const setImageTransForm = () => {
             Math.max(pointY, leImg.right), (rect.right - bounds.right - dx)
         );
     }
-    if (pointY >= (rect.top - bounds.top - dyDot + dy)){
+    if (pointY >= (rect.top + rectBorderScale - bounds.top - dyDot + dy)){
         pointY = Math.min(
-            Math.max(pointY, leImg.top), (rect.top - bounds.top - dyDot + dy)
+            Math.max(pointY, leImg.top), (rect.top + rectBorderScale - bounds.top - dyDot + dy)
         );
     }
-    else if (pointY <= (rect.bottom - bounds.bottom + dyDot - dy)){
+    else if (pointY <= (rect.bottom + rectBorderScale - bounds.bottom + dyDot - dy)){
         pointY = Math.min(
-            Math.max(pointY, leImg.bottom), (rect.bottom - bounds.bottom + dyDot - dy)
+            Math.max(pointY, leImg.bottom), (rect.bottom + rectBorderScale - bounds.bottom + dyDot - dy)
         );
     }
 
